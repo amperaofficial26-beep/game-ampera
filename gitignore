@@ -1,0 +1,29 @@
+# Python cache dan file hasil kompilasi
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables dan Streamlit secrets
+.env
+.env.*
+.streamlit/secrets.toml
+
+# Test / coverage cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editor dan OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# File log
+*.log
