@@ -1,0 +1,12 @@
+"""Konstanta balance agar angka game mudah diubah dari satu tempat."""
+
+STARTING_CREDITS = 200
+STARTING_BASE_HP = 100
+MAX_BASE_HP = 100
+
+BASE_ENEMY_HP = 50
+ENEMY_HP_PER_WAVE = 35
+BASE_REWARD = 40
+REWARD_PER_WAVE = 15
+
+FUSION_DAMAGE_MULTIPLIER = 1.5
