@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260" role="img" aria-labelledby="title desc">
+  <title id="title">Tower Fusion logo</title>
+  <desc id="desc">Logo game Tower Fusion dengan menara energi dan teks.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#151b48"/>
+      <stop offset="1" stop-color="#42206f"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="0" x2="1">
+      <stop stop-color="#55d8ff"/>
+      <stop offset=".5" stop-color="#b37bff"/>
+      <stop offset="1" stop-color="#ffce62"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="260" rx="30" fill="url(#sky)"/>
+  <g transform="translate(55 25)">
+    <path d="M75 10 20 190h110L75 10Z" fill="#10152e" stroke="#65dcff" stroke-width="7"/>
+    <path d="M75 38 49 110h52L75 38Z" fill="url(#beam)" opacity=".9"/>
+    <path d="M75 78v112" stroke="#bca8ff" stroke-width="8"/>
+    <path d="M35 150h80M25 190h100" stroke="#65dcff" stroke-width="7"/>
+    <circle cx="75" cy="30" r="12" fill="#fff3a8"/>
+  </g>
+  <text x="205" y="123" fill="#f8f7ff" font-family="Arial, Helvetica, sans-serif" font-size="68" font-weight="800" letter-spacing="3">TOWER</text>
+  <text x="205" y="193" fill="url(#beam)" font-family="Arial, Helvetica, sans-serif" font-size="68" font-weight="800" letter-spacing="3">FUSION</text>
+  <text x="560" y="220" fill="#b6c1e8" font-family="Arial, Helvetica, sans-serif" font-size="17" letter-spacing="2">BUILD • COMBINE • DEFEND</text>
+</svg>

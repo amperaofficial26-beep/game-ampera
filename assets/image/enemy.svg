@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" role="img" aria-labelledby="title desc">
+  <title id="title">Tower Fusion enemy</title>
+  <desc id="desc">Robot musuh berwarna merah dengan satu mata energi.</desc>
+  <defs>
+    <linearGradient id="armor" x1="0" x2="1">
+      <stop stop-color="#59253b"/><stop offset=".5" stop-color="#aa4057"/><stop offset="1" stop-color="#57243d"/>
+    </linearGradient>
+    <radialGradient id="eye"><stop stop-color="#fff9b0"/><stop offset=".35" stop-color="#ffb546"/><stop offset="1" stop-color="#ff4c5b"/></radialGradient>
+  </defs>
+  <rect width="360" height="360" rx="28" fill="#1c1329"/>
+  <ellipse cx="180" cy="300" rx="122" ry="24" fill="#080b19" opacity=".55"/>
+  <path d="M102 274 82 196l35-88h126l35 88-20 78Z" fill="url(#armor)" stroke="#e57580" stroke-width="6"/>
+  <path d="M124 113 145 64h70l21 49" fill="none" stroke="#e57580" stroke-width="9" stroke-linejoin="round"/>
+  <path d="M127 177h106l-13 72h-80Z" fill="#2a1831" stroke="#e57580" stroke-width="5"/>
+  <circle cx="180" cy="173" r="42" fill="#24172f" stroke="#f1858e" stroke-width="6"/>
+  <circle cx="180" cy="173" r="25" fill="url(#eye)"/>
+  <path d="M109 269 68 314M251 269l41 45" stroke="#e57580" stroke-width="18" stroke-linecap="round"/>
+  <path d="M136 273 117 327M224 273l19 54" stroke="#e57580" stroke-width="20" stroke-linecap="round"/>
+</svg>
