@@ -1,121 +1,51 @@
-"""Halaman utama Streamlit untuk Tower Fusion.
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080d1c" />
+  <title>Tower Fusion 3D</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <main id="app">
+    <canvas id="game-canvas" aria-label="Arena Tower Fusion 3D"></canvas>
 
-File ini hanya menghubungkan state game, komponen UI, dan aset.
-Logika permainan berada di folder game/, sedangkan tampilan berada di ui/.
-"""
+    <header class="topbar">
+      <div><p class="eyebrow">WEBGL TOWER DEFENSE</p><h1>⚡ TOWER FUSION <span>3D</span></h1></div>
+      <div class="stats">
+        <div><small>KREDIT</small><strong id="money">200</strong></div>
+        <div><small>WAVE</small><strong id="wave">1</strong></div>
+        <div><small>BASE HP</small><strong id="base-hp">100</strong></div>
+      </div>
+    </header>
 
-from pathlib import Path
+    <aside class="panel build-panel">
+      <p class="panel-title">BANGUN LANTAI <span id="floor-count">0/5</span></p>
+      <label for="weapon-select">SENJATA</label>
+      <select id="weapon-select"></select>
+      <p id="weapon-info" class="weapon-info"></p>
+      <button id="build-button" class="primary">＋ Bangun lantai</button>
+      <div id="floor-list" class="floor-list"></div>
+    </aside>
 
-import streamlit as st
+    <section class="panel combat-panel">
+      <p class="panel-title">PERTEMPURAN</p>
+      <p id="enemy-info">Bangun tower lalu mulai wave.</p>
+      <button id="wave-button" class="primary">⚔ Mulai wave</button>
+      <p id="message" class="message">Pertahankan base dari robot penyerang.</p>
+    </section>
 
-from game.state import GameState
-from ui.battle_view import render_battle_panel, render_game_message
-from ui.sidebar import render_sidebar
-from ui.styles import apply_global_styles
-from ui.tower_view import render_build_panel, render_tower
-
-
-st.set_page_config(
-    page_title="Tower Fusion",
-    page_icon="🏰",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
-
-
-def get_game() -> GameState:
-    """Mengambil state game dari Streamlit atau memulai game baru."""
-    if "game_state" not in st.session_state:
-        st.session_state.game_state = GameState()
-    return st.session_state.game_state
-
-
-def reset_game() -> None:
-    """Mengganti seluruh state permainan dengan permainan baru."""
-    st.session_state.game_state = GameState()
-
-
-def render_game_stats(game: GameState) -> None:
-    """Menampilkan statistik penting di bagian atas halaman."""
-    stat1, stat2, stat3, stat4 = st.columns(4)
-    stat1.metric("💰 Kredit", game.money)
-    stat2.metric("🌊 Wave berikutnya", game.wave)
-    stat3.metric("❤️ Base HP", game.base_hp)
-    stat4.metric("🎯 Total damage", game.tower.total_damage)
-
-
-def render_svg(asset_path: str, max_width: int | None = None) -> None:
-    """Menampilkan SVG inline tanpa MediaFileStorage Streamlit.
-
-    Path dihitung dari lokasi app.py, bukan working directory deployment.
-    Jika aset belum ikut ter-push ke GitHub, game tetap berjalan tanpa gambar.
-    """
-    project_root = Path(__file__).resolve().parent
-    svg_file = project_root / asset_path
-
-    if not svg_file.is_file():
-        # Jangan sampai aset opsional menghentikan seluruh game di Streamlit Cloud.
-        return
-
-    svg = svg_file.read_text(encoding="utf-8")
-    style = "width: 100%;" if max_width is None else f"width: min(100%, {max_width}px);"
-    st.markdown(
-        f'<div style="{style} margin: 0 auto;">{svg}</div>',
-        unsafe_allow_html=True,
-    )
-
-
-def main() -> None:
-    apply_global_styles()
-    game = get_game()
-
-    # Sidebar dapat meminta game dimulai ulang.
-    if render_sidebar(game):
-        reset_game()
-        st.rerun()
-
-    logo_col, title_col = st.columns([1, 3])
-    with logo_col:
-        render_svg("assets/images/logo.svg")
-    with title_col:
-        st.title("🏰 Tower Fusion")
-        st.caption(
-            "Bangun menara lima lantai, gabungkan senjata, "
-            "dan lindungi base dari gelombang musuh."
-        )
-
-    render_game_stats(game)
-    st.divider()
-
-    tower_col, action_col = st.columns([1.15, 1])
-    with tower_col:
-        render_tower(game)
-        render_svg("assets/images/tower.svg", max_width=280)
-
-    with action_col:
-        state_changed = render_build_panel(game)
-        st.divider()
-        battle_started = render_battle_panel(game)
-
-    # Setelah aksi diproses, lakukan rerun agar semua angka dan UI terbaru tampil.
-    if state_changed or battle_started:
-        if game.tower.fusion_ready and state_changed:
-            st.balloons()
-        st.rerun()
-
-    st.divider()
-    render_game_message(game)
-
-    with st.expander("ℹ️ Tentang prototype ini"):
-        st.write(
-            "Versi awal ini memakai perhitungan battle per-wave. "
-            "Tahap pengembangan berikutnya dapat menambahkan upgrade pilihan, "
-            "efek slow, chain lightning, damage area, jenis musuh lebih banyak, "
-            "dan sinergi berdasarkan urutan lantai."
-        )
-
-    st.caption("Tower Fusion prototype • Dibuat dengan Python dan Streamlit")
-
-
-if __name__ == "__main__":
-    main()
+    <div class="hint">Klik dan geser untuk memutar kamera • Scroll untuk zoom</div>
+  </main>
+  <script type="module" src="main.js"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2dbfa68893a58f8',t:'MTc4NzE3MjA3Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
