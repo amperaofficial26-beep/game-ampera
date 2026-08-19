@@ -4,6 +4,8 @@ File ini hanya menghubungkan state game, komponen UI, dan aset.
 Logika permainan berada di folder game/, sedangkan tampilan berada di ui/.
 """
 
+from pathlib import Path
+
 import streamlit as st
 
 from game.state import GameState
@@ -42,6 +44,20 @@ def render_game_stats(game: GameState) -> None:
     stat4.metric("🎯 Total damage", game.tower.total_damage)
 
 
+def render_svg(asset_path: str, max_width: int | None = None) -> None:
+    """Menampilkan SVG inline tanpa MediaFileStorage Streamlit.
+
+    Beberapa deployment Streamlit gagal membuka SVG lewat st.image().
+    SVG dirender langsung sebagai HTML agar tidak memakai media storage.
+    """
+    svg = Path(asset_path).read_text(encoding="utf-8")
+    style = "width: 100%;" if max_width is None else f"width: min(100%, {max_width}px);"
+    st.markdown(
+        f'<div style="{style} margin: 0 auto;">{svg}</div>',
+        unsafe_allow_html=True,
+    )
+
+
 def main() -> None:
     apply_global_styles()
     game = get_game()
@@ -53,7 +69,7 @@ def main() -> None:
 
     logo_col, title_col = st.columns([1, 3])
     with logo_col:
-        st.image("assets/images/logo.svg", use_container_width=True)
+        render_svg("assets/images/logo.svg")
     with title_col:
         st.title("🏰 Tower Fusion")
         st.caption(
@@ -67,7 +83,7 @@ def main() -> None:
     tower_col, action_col = st.columns([1.15, 1])
     with tower_col:
         render_tower(game)
-        st.image("assets/images/tower.svg", width=280)
+        render_svg("assets/images/tower.svg", max_width=280)
 
     with action_col:
         state_changed = render_build_panel(game)
