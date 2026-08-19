@@ -47,10 +47,17 @@ def render_game_stats(game: GameState) -> None:
 def render_svg(asset_path: str, max_width: int | None = None) -> None:
     """Menampilkan SVG inline tanpa MediaFileStorage Streamlit.
 
-    Beberapa deployment Streamlit gagal membuka SVG lewat st.image().
-    SVG dirender langsung sebagai HTML agar tidak memakai media storage.
+    Path dihitung dari lokasi app.py, bukan working directory deployment.
+    Jika aset belum ikut ter-push ke GitHub, game tetap berjalan tanpa gambar.
     """
-    svg = Path(asset_path).read_text(encoding="utf-8")
+    project_root = Path(__file__).resolve().parent
+    svg_file = project_root / asset_path
+
+    if not svg_file.is_file():
+        # Jangan sampai aset opsional menghentikan seluruh game di Streamlit Cloud.
+        return
+
+    svg = svg_file.read_text(encoding="utf-8")
     style = "width: 100%;" if max_width is None else f"width: min(100%, {max_width}px);"
     st.markdown(
         f'<div style="{style} margin: 0 auto;">{svg}</div>',
