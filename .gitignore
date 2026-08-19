@@ -1,29 +1,15 @@
-# Python cache dan file hasil kompilasi
+# Python / Streamlit wrapper
 __pycache__/
 *.py[cod]
-*$py.class
-
-# Virtual environments
 .venv/
 venv/
-env/
-ENV/
-
-# Environment variables dan Streamlit secrets
-.env
-.env.*
 .streamlit/secrets.toml
+.env
 
-# Test / coverage cache
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Editor dan OS
+# JavaScript / editor / OS
+node_modules/
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
-
-# File log
 *.log
