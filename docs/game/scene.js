@@ -13,8 +13,9 @@ const terrainFragmentShader = `
 
 export function createScene(canvas) {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x101426);
-  scene.fog = new THREE.FogExp2(0x101426, 0.027);
+  // Palet sore hari: langit biru hangat, kabut lembut, dan sinar matahari keemasan.
+  scene.background = new THREE.Color(0x89b6d0);
+  scene.fog = new THREE.FogExp2(0x9bb9be, 0.018);
 
   const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, 0.1, 100);
   camera.position.set(12.8, 12.2, 18.8);
@@ -37,18 +38,20 @@ export function createScene(canvas) {
   controls.maxPolarAngle = Math.PI * 0.47;
   controls.minPolarAngle = Math.PI * 0.18;
 
-  scene.add(new THREE.HemisphereLight(0x8296e8, 0x172414, 1.55));
-  const moon = new THREE.DirectionalLight(0xc2d5ff, 2.25);
-  moon.position.set(-9, 16, 7);
-  moon.castShadow = true;
-  moon.shadow.mapSize.set(2048, 2048);
-  moon.shadow.camera.left = -18; moon.shadow.camera.right = 18;
-  moon.shadow.camera.top = 18; moon.shadow.camera.bottom = -18;
-  scene.add(moon);
+  scene.add(new THREE.HemisphereLight(0xffdaa8, 0x38502d, 2.15));
+  const sun = new THREE.DirectionalLight(0xffad69, 3.15);
+  sun.position.set(-12, 15, -7);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.left = -18; sun.shadow.camera.right = 18;
+  sun.shadow.camera.top = 18; sun.shadow.camera.bottom = -18;
+  scene.add(sun);
 
-  const sunset = new THREE.DirectionalLight(0xff9c63, 1.15);
-  sunset.position.set(12, 6, -13);
-  scene.add(sunset);
+  // Cahaya dingin yang tipis menjaga bayangan tetap terlihat pada sore hari.
+  const skyFill = new THREE.DirectionalLight(0x9dccff, 0.75);
+  skyFill.position.set(10, 9, 12);
+  scene.add(skyFill);
+  createSunDisc(scene);
 
   createTerrain(scene);
   createRoad(scene);
@@ -121,4 +124,19 @@ function createTree(scene,x,z,s) {
 }
 function createRock(scene,x,z) { const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(.25+Math.random()*.45,0),new THREE.MeshStandardMaterial({color:0x4c5361,roughness:.9}));rock.position.set(x,.18,z);rock.rotation.set(Math.random(),Math.random(),0);rock.scale.y=.65;rock.castShadow=true;scene.add(rock); }
 function addLantern(scene,x,z) { const pole=new THREE.Mesh(new THREE.CylinderGeometry(.05,.08,1.25,6),new THREE.MeshStandardMaterial({color:0x30292c}));pole.position.set(x,.63,z);scene.add(pole);const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.18),new THREE.MeshBasicMaterial({color:0xffbb65}));gem.position.set(x,1.25,z);scene.add(gem);const light=new THREE.PointLight(0xff9b55,1.6,5,2);light.position.set(x,1.25,z);scene.add(light); }
-function createFireflies(scene) { const g=new THREE.BufferGeometry(), p=[];for(let i=0;i<180;i++)p.push((Math.random()-.5)*32,Math.random()*8+.15,(Math.random()-.5)*28);g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x86dfff,size:.045,transparent:true,opacity:.75}))); }
+function createSunDisc(scene) {
+  const sun = new THREE.Mesh(
+    new THREE.SphereGeometry(1.15, 20, 12),
+    new THREE.MeshBasicMaterial({ color: 0xffd78a, fog: false })
+  );
+  sun.position.set(-18, 11, -22);
+  scene.add(sun);
+}
+
+// Partikel kuning halus sebagai serbuk sihir/debu yang terkena sinar sore.
+function createFireflies(scene) {
+  const g = new THREE.BufferGeometry(), p = [];
+  for (let i = 0; i < 110; i++) p.push((Math.random() - .5) * 30, Math.random() * 5 + .15, (Math.random() - .5) * 22);
+  g.setAttribute('position', new THREE.Float32BufferAttribute(p, 3));
+  scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xffdc8d, size: .038, transparent: true, opacity: .52 })));
+}
