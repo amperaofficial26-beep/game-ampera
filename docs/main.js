@@ -5,7 +5,7 @@ import { WaveManager } from './game/wave.js';
 import { WEAPONS } from './game/weapons.js';
 
 const canvas=document.querySelector('#game-canvas');
-const {scene,camera,renderer,controls}=createScene(canvas);
+const {scene,camera,renderer,controls,updateEnvironment}=createScene(canvas);
 const tower=new Tower(scene), waves=new WaveManager(scene), clock=new THREE.Clock();
 let money=200, baseHp=100, effects=[];
 const $=s=>document.querySelector(s); const select=$('#weapon-select'), build=$('#build-button'), waveButton=$('#wave-button');
@@ -38,6 +38,6 @@ function loop(){const dt=Math.min(clock.getDelta(),.05);waves.update(dt);tower.u
   if(breaches){baseHp=Math.max(0,baseHp-breaches*8);message(`⚠ ${breaches} robot mencapai base!`);}
   if(waves.completed){const reward=35+waves.wave*14;money+=reward;message(`🏆 Wave selesai! Kamu mendapat ${reward} kredit.`);waves.finish();}
   if(baseHp<=0){waves.active=false;message('☠ Base hancur. Refresh halaman untuk bermain lagi.');}
-  updateUI();controls.update();renderer.render(scene,camera);requestAnimationFrame(loop);
+  updateUI();updateEnvironment(performance.now() / 1000);controls.update();renderer.render(scene,camera);requestAnimationFrame(loop);
 }
 message('Bangun lantai pertama dan mulailah pertahanan.');updateUI();loop();
