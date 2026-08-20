@@ -1,31 +1,36 @@
 import * as THREE from 'three';
 import { WEAPONS, getTier } from './weapons.js';
+import { createFloorArchitecture, floorHeight } from './tower_architecture.js';
 
+// Tower utama: lima modul lantai tersambung, bukan lima rumah terpisah.
 export class Tower {
-  constructor(scene){this.scene=scene;this.floors=[];this.group=new THREE.Group();this.group.position.set(-5.25,0,0);scene.add(this.group);this.stone=new THREE.MeshStandardMaterial({color:0x52617a,roughness:.68,metalness:.16});const pedestal=new THREE.Mesh(new THREE.CylinderGeometry(2.22,2.72,.55,10),this.stone);pedestal.position.y=.27;pedestal.castShadow=pedestal.receiveShadow=true;this.group.add(pedestal);}
-  addFloor(key){if(this.floors.length>=5)return false;const floor={key,weapon:WEAPONS[key],level:1,cooldown:0,visual:null};this.floors.push(floor);this.rebuildFloor(this.floors.length-1);return true;}
-  upgradeFloor(index){const floor=this.floors[index];if(!floor||floor.level>=5)return false;floor.level++;this.rebuildFloor(index);return true;}
-  rebuildFloor(index){const floor=this.floors[index];if(floor.visual)this.group.remove(floor.visual);const group=new THREE.Group();group.position.y=.83+index*1.05;this.addArchitecture(group,floor.key,floor.level,floor.weapon.color);this.addWeapon(group,floor.key,floor.level,floor.weapon.color);const labelLight=new THREE.PointLight(floor.weapon.color,.35+floor.level*.13,2.8);labelLight.position.y=.65;group.add(labelLight);floor.visual=group;this.group.add(group);}
-  addArchitecture(group,key,level,color){
-    // Setiap lantai adalah bagian bangunan yang kokoh: dinding, sudut batu, jendela dan parapet.
-    const wallColors={cannon:0x66564b,tesla:0x48536b,freeze:0x708a99,rocket:0x6c4d43,laser:0x5b506e};
-    const wallMat=new THREE.MeshStandardMaterial({color:wallColors[key],roughness:.78,metalness:.05});
-    const trimMat=new THREE.MeshStandardMaterial({color:0x313846,roughness:.62,metalness:.18});
-    const woodMat=new THREE.MeshStandardMaterial({color:0x4f3428,roughness:.86});
-    const glowMat=new THREE.MeshBasicMaterial({color});
-    const body=new THREE.Mesh(new THREE.BoxGeometry(2.34,.72,2.12),wallMat);body.position.y=.34;body.castShadow=body.receiveShadow=true;group.add(body);
-    const ledge=new THREE.Mesh(new THREE.BoxGeometry(2.55,.13,2.32),trimMat);ledge.position.y=.72;ledge.castShadow=true;group.add(ledge);
-    // Empat pilar sudut memberi siluet bangunan kastil yang nyata.
-    for(const [x,z] of [[-1.02,-.9],[-1.02,.9],[1.02,-.9],[1.02,.9]]){const pillar=new THREE.Mesh(new THREE.BoxGeometry(.18,.88,.18),trimMat);pillar.position.set(x,.44,z);pillar.castShadow=true;group.add(pillar);}
-    // Jendela bercahaya pada sisi depan. Level tinggi menambah bukaan dan detail fasad.
-    const windowCount=level>=4?3:level>=2?2:1;
-    for(let i=0;i<windowCount;i++){const window=new THREE.Mesh(new THREE.PlaneGeometry(.25,.31),glowMat);window.position.set(-.42+(windowCount===1?0:i*.42),.39,-1.071);group.add(window);const frame=new THREE.Mesh(new THREE.BoxGeometry(.33,.4,.04),trimMat);frame.position.set(window.position.x,.39,-1.08);group.add(frame);}
-    if(level>=2){for(const z of[-.72,.72]){const brace=new THREE.Mesh(new THREE.BoxGeometry(2.16,.09,.11),woodMat);brace.position.set(0,.18,z);group.add(brace);}}
-    if(level>=3){for(const x of[-.82,.82]){const banner=new THREE.Mesh(new THREE.PlaneGeometry(.22,.43),glowMat);banner.position.set(x,.72,-1.11);group.add(banner);}}
-    if(level>=4){for(const x of[-.92,-.31,.31,.92]){const crenel=new THREE.Mesh(new THREE.BoxGeometry(.27,.22,.27),trimMat);crenel.position.set(x,.89,-.86);group.add(crenel);}}
-    if(level>=5){const arch=new THREE.Mesh(new THREE.TorusGeometry(.43,.07,6,12,Math.PI),glowMat);arch.rotation.z=Math.PI;arch.position.set(0,.59,-1.12);group.add(arch);for(const x of[-1.05,1.05]){const spire=new THREE.Mesh(new THREE.ConeGeometry(.14,.42,5),trimMat);spire.position.set(x,1.05,0);group.add(spire);}}
+  constructor(scene) {
+    this.scene=scene; this.floors=[]; this.group=new THREE.Group(); this.group.position.set(-5.25,0,0); scene.add(this.group);
+    const baseMat=new THREE.MeshStandardMaterial({color:0x334057,roughness:.72,metalness:.14});
+    const pedestal=new THREE.Mesh(new THREE.CylinderGeometry(2.24,2.78,.55,10),baseMat);pedestal.position.y=.27;pedestal.castShadow=pedestal.receiveShadow=true;this.group.add(pedestal);
+    const stairs=new THREE.Mesh(new THREE.BoxGeometry(1.35,.36,1.0),baseMat);stairs.position.set(0,.18,-1.75);stairs.castShadow=true;this.group.add(stairs);
   }
-  addWeapon(group,key,level,color){const glow=new THREE.MeshBasicMaterial({color});const metal=new THREE.MeshStandardMaterial({color:0x34323d,metalness:.68,roughness:.28});const scale=1+level*.12;if(key==='cannon'){for(let i=0;i<(level>=4?2:1);i++){const barrel=new THREE.Mesh(new THREE.CylinderGeometry(.16,.25,.9*scale,10),metal);barrel.rotation.z=Math.PI/2;barrel.position.set(.28,.58,(i-.5)*.38);group.add(barrel);}if(level>=5){const flame=new THREE.Mesh(new THREE.ConeGeometry(.22,.5,7),glow);flame.rotation.z=-Math.PI/2;flame.position.set(.98,.58,0);group.add(flame);}}else if(key==='tesla'){for(let i=0;i<Math.min(2+level,5);i++){const spike=new THREE.Mesh(new THREE.ConeGeometry(.09,.45+.1*level,5),glow);const a=i/Math.min(2+level,5)*Math.PI*2;spike.position.set(Math.cos(a)*.38,.55,Math.sin(a)*.38);group.add(spike);}group.add(new THREE.Mesh(new THREE.OctahedronGeometry(.16+.05*level),glow));}else if(key==='freeze'){const crystal=new THREE.Mesh(new THREE.ConeGeometry(.22+.04*level,.55+.16*level,6),glow);crystal.position.y=.62;group.add(crystal);if(level>=4)for(const x of[-.42,.42]){const ice=new THREE.Mesh(new THREE.ConeGeometry(.15,.65,5),glow);ice.position.set(x,.45,0);group.add(ice);}}else if(key==='rocket'){for(let i=0;i<(level>=3?2:1);i++){const launcher=new THREE.Mesh(new THREE.BoxGeometry(.42,.23,.78),metal);launcher.position.set(.18,.52,(i-.5)*.38);launcher.rotation.z=-.25;group.add(launcher);}if(level>=5){const wing=new THREE.Mesh(new THREE.ConeGeometry(.27,.65,8),glow);wing.rotation.z=-Math.PI/2;wing.position.set(.65,.62,0);group.add(wing);}}else{const staff=new THREE.Mesh(new THREE.CylinderGeometry(.07,.11,.55+.1*level,8),metal);staff.position.y=.48;group.add(staff);const orb=new THREE.Mesh(new THREE.SphereGeometry(.15+.05*level,12,10),glow);orb.position.y=.78+.08*level;group.add(orb);if(level>=4){const ring=new THREE.Mesh(new THREE.TorusGeometry(.38,.04,6,16),glow);ring.rotation.x=Math.PI/2;ring.position.y=.72;group.add(ring);}}}
+  addFloor(key){if(this.floors.length>=5)return false;this.floors.push({key,weapon:WEAPONS[key],level:1,cooldown:0,visual:null});this.rebuildTower();return true;}
+  upgradeFloor(index){const floor=this.floors[index];if(!floor||floor.level>=5)return false;floor.level++;this.rebuildTower();return true;}
+  rebuildTower(){
+    // Posisi setiap lantai dihitung ulang agar upgrade tinggi tidak saling menembus.
+    let y=.56;
+    this.floors.forEach((floor,index)=>{
+      if(floor.visual)this.group.remove(floor.visual);
+      const visual=createFloorArchitecture({key:floor.key,level:floor.level,index,isTop:index===this.floors.length-1,color:floor.weapon.color});
+      visual.position.y=y; floor.visual=visual; this.group.add(visual);
+      y+=floorHeight(floor.level)+.07;
+    });
+  }
   get fusionReady(){return this.floors.length===5&&new Set(this.floors.map(f=>f.key)).size===5;}
-  update(dt,enemies,effects){for(const floor of this.floors){floor.cooldown-=dt;const tier=getTier(floor.key,floor.level);const target=enemies.find(e=>e.alive&&e.group.position.distanceTo(this.group.position)<16);if(target&&floor.cooldown<=0){effects.fire(floor,target,this.group.position.clone().add(new THREE.Vector3(0,floor.visual.position.y+.58,0)),tier);floor.cooldown=tier.cooldown;}}}
+  update(dt,enemies,effects){
+    for(const floor of this.floors){
+      floor.cooldown-=dt;const tier=getTier(floor.key,floor.level);
+      const target=enemies.find(e=>e.alive&&e.group.position.distanceTo(this.group.position)<16);
+      if(target&&floor.cooldown<=0){
+        effects.fire(floor,target,this.group.position.clone().add(new THREE.Vector3(0,floor.visual.position.y+1.0,0)),tier);
+        floor.cooldown=tier.cooldown;
+      }
+    }
+  }
 }
